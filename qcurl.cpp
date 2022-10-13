@@ -17,7 +17,6 @@ QMap<int, QNetworkReply::NetworkError> errorMap{
   {CURLE_RECV_ERROR,            QNetworkReply::UnknownNetworkError},
   {CURLE_COULDNT_RESOLVE_HOST,  QNetworkReply::HostNotFoundError},
   {CURLE_COULDNT_RESOLVE_PROXY, QNetworkReply::ProxyNotFoundError},
-  {CURLE_PROXY,                 QNetworkReply::UnknownProxyError},
   {CURLE_WEIRD_SERVER_REPLY,    QNetworkReply::UnknownContentError},
   {CURLE_RANGE_ERROR,           QNetworkReply::ContentOperationNotPermittedError},
   {CURLE_GOT_NOTHING,           QNetworkReply::ContentNotFoundError},
@@ -135,7 +134,7 @@ qint64 QCurl::Reply::readData(char* out, qint64 maxlen)
 {
   if (cursor < data.length())
   {
-    qint64 endCursor = std::min(cursor + maxlen, data.length());
+    qint64 endCursor = std::min<qint64>(cursor + maxlen, data.length());
     qint64 written = endCursor - cursor;
     std::copy(&data.data()[cursor], &data.data()[endCursor], out);
     cursor = endCursor;
