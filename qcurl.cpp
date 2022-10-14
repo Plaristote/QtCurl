@@ -72,7 +72,7 @@ void QCurl::prepare_body(const QNetworkRequest& request, const QByteArray& body)
   curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body.data());
 }
 
-void QCurl::handle_success()
+void QCurl::handle_success(QCurl::Reply& reply)
 {
   long status;
 
@@ -81,7 +81,7 @@ void QCurl::handle_success()
   reply.loadHeaders();
 }
 
-void QCurl::handle_failure(void* resptr)
+void QCurl::handle_failure(QCurl::Reply& reply, void* resptr)
 {
   CURLcode& res = *reinterpret_cast<CURLcode*>(resptr);
 
@@ -96,30 +96,36 @@ QNetworkReply* QCurl::send(const QNetworkRequest& request, const QByteArray& bod
 {
   CURLcode res;
   long status;
+  auto* reply = new QCurl::Reply();
 
-  reply.resetReply();
-  curl_easy_setopt(handle, CURLOPT_URL, request.url().toString().toStdString().c_str());
   prepare_headers(request);
   if (body.length())
     prepare_body(request, body);
+  curl_easy_setopt(handle, CURLOPT_URL, request.url().toString().toStdString().c_str());
   curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
+  curl_easy_setopt(handle, CURLOPT_WRITEDATA, reinterpret_cast<void*>(reply));
+  curl_easy_setopt(handle, CURLOPT_HEADERDATA, reinterpret_cast<void*>(reply));
   res = curl_easy_perform(handle);
   if (res == CURLE_OK)
-    handle_success();
+    handle_success(*reply);
   else
-    handle_failure(&res);
-  return &reply;
+    handle_failure(*reply, &res);
+  return reply;
 }
 
-size_t QCurl::write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data)
+size_t QCurl::write_data(void *ptr, size_t size, size_t nmemb, void* userdata)
 {
-  reply.writeData(reinterpret_cast<char*>(ptr), size * nmemb);
+  QCurl::Reply* reply = reinterpret_cast<QCurl::Reply*>(userdata);
+
+  reply->writeData(reinterpret_cast<char*>(ptr), size * nmemb);
   return size * nmemb;
 }
 
 size_t QCurl::header_callback(char* buffer, size_t size, size_t nitems, void* userdata)
 {
-  reply.headerData.append(buffer, size * nitems);
+  QCurl::Reply* reply = reinterpret_cast<QCurl::Reply*>(userdata);
+
+  reply->headerData.append(buffer, size * nitems);
   return size * nitems;
 }
 
