@@ -44,6 +44,11 @@ QCurl::~QCurl()
   curl_easy_cleanup(handle);
 }
 
+void QCurl::setVerbosityLevel(unsigned int level)
+{
+  curl_easy_setopt(handle, CURLOPT_VERBOSE, level);
+}
+
 void QCurl::setCertificate(const QString& filepath, QSsl::EncodingFormat format)
 {
   curl_easy_setopt(handle, CURLOPT_SSLCERTTYPE, format == QSsl::Pem ? "PEM" : "DER");
@@ -70,6 +75,7 @@ void QCurl::prepare_body(const QNetworkRequest& request, const QByteArray& body)
   std::string content_length = "Content-Length: " + std::to_string(body.length());
   headers = curl_slist_append(headers, content_length.c_str());
   curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body.data());
+  curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.length());
 }
 
 void QCurl::handle_success(QCurl::Reply& reply)

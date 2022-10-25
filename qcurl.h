@@ -37,6 +37,7 @@ public:
   QNetworkReply* send(const QNetworkRequest& request, const QByteArray& body = "");
   void setCertificate(const QString& filePath, QSsl::EncodingFormat format = QSsl::Pem);
   void setSslKey(const QString& filePath, QSsl::KeyAlgorithm algorithm = QSsl::Rsa);
+  void setVerbosityLevel(unsigned int);
 
   void* operator*() { return handle; }
 
