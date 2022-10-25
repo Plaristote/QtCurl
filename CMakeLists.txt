@@ -13,12 +13,13 @@ else()
 endif()
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network REQUIRED)
+find_package(CURL REQUIRED)
 
 add_library(QtCurl SHARED
   qcurl.cpp
   qcurl.h
 )
 
-target_link_libraries(QtCurl PRIVATE curl Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(QtCurl PRIVATE curl Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network curl)
 
 target_compile_definitions(QtCurl PRIVATE METARECORDQT_LIBRARY)
