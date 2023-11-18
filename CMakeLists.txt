@@ -29,4 +29,4 @@ configure_file(QtCurl.pc.in ${TARGET_NAME}.pc @ONLY)
 
 install(FILES qcurl.h DESTINATION include)
 install(TARGETS ${TARGET_NAME} DESTINATION lib)
-install(FILES ${CMAKE_BINARY_DIR}/${TARGET_NAME}.pc DESTINATION lib/pkgconfig)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_NAME}.pc DESTINATION lib/pkgconfig)
